@@ -1,5 +1,6 @@
 // Shared behaviour for the concept mock-up. No data is sent anywhere.
 (function(){
+  document.querySelectorAll('a.scope').forEach(function(a){ a.addEventListener('click', function(e){ e.preventDefault(); var n=document.getElementById('scopeNote'); if(!n){ n=document.createElement('div'); n.id='scopeNote'; n.className='flash'; n.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9000;max-width:560px;box-shadow:0 8px 24px rgba(0,0,0,.2)'; document.body.appendChild(n);} n.innerHTML='<b>'+a.textContent+'</b>: an existing Lyka page, not part of this proposal. The plan changes only the Pricing, Learn and Try Lyka routes. <a href="#" onclick="this.parentNode.remove();return false;">Close</a>'; }); });
   var q = new URLSearchParams(location.search);
   var src = q.get('utm_source'); var clinic = q.get('clinic');
   // carry tracking parameters across internal links so the route stays visible in the address bar
@@ -22,7 +23,7 @@
     var label = {tiktok:'TikTok reply', clinic:'vet clinic card', search:'Google search ad', compare:'cost comparison page', instagram:'Instagram reply', cover:'report cover QR'}[src] || null;
     if (label) {
       route.style.display = 'block';
-      route.innerHTML = '<b>Route recorded:</b> you arrived from the ' + label + (clinic ? ' (clinic code ' + clinic + ')' : '') + '. Address bar shows <span class="url">' + location.search + '</span>. This is how each tactic is attributed in the plan.';
+      route.innerHTML = '<b>Route recorded:</b> you arrived from the ' + label + (clinic ? ' (clinic code ' + clinic + ')' : '') + '. Address bar shows <span class="url">' + location.search.replace(/[?&]tour=\d+/,'') + '</span>. This is how each tactic is attributed in the plan.';
     }
   }
   // price calculator
