@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Price your bowl (mock-up)</title><link rel="stylesheet" href="site.css"></head><body>
+<div class="banner"><b>Student concept mock-up.</b> MARK901 Assessment 2, Matt Geoghegan, University of Wollongong. Not a Lyka Pet Food website. Prices are examples captured in September 2026; nothing here is collected or sent anywhere.</div>
+<div class="path"><span class="lbl">Walk the journey:</span><a href="index.html">Start: Chloe's path</a><a href="tiktok.html">1 TikTok reply</a><a href="price.html" class="on">2 Price page</a><a href="compare.html">3 Cost comparison</a><a href="clinic.html">4 Vet clinic card</a><a href="plan.html">5 Start a plan</a></div>
+<nav class="site"><a class="logo" href="index.html">lyka</a><a href="#">Our food</a><a href="#">Why real food?</a><a href="price.html" class="cur">Pricing</a><a href="compare.html">Learn</a><a href="#">Reviews</a><a class="cta" href="plan.html">Try Lyka</a></nav>
+<div class="strip">Every plan priced in public. No email needed.</div>
+<div class="wrap">
+
+<div id="route" class="flash" style="display:none"></div>
+<div class="grid">
+ <div>
+  <h1>Price <span>your bowl</span></h1>
+  <p class="lead">See what fresh costs for your dog, before you sign up.</p>
+  <div class="field"><label>Weight (kg)</label><input id="weight" type="number" min="3" max="80" step="1" value="30"></div>
+  <div class="field"><label>Age</label><select id="age"><option value="puppy">Puppy (under 12 months)</option><option value="adult" selected>Adult</option><option value="senior">Senior (8+)</option></select></div>
+  <div class="field"><label>Activity</label><select id="activity"><option value="low">Low</option><option value="typical" selected>Typical</option><option value="high">High</option></select></div>
+  <div class="note">✓ No email needed to see your price</div>
+ </div>
+ <div>
+  <div class="plans">
+   <div class="plan best"><span class="tag">Every meal fresh</span><h3>Full Bowl</h3><div class="sub">Complete and balanced</div><div class="big"><span id="fFort">$217.00</span> <small>every 2 weeks</small></div><div class="day"><span id="fDay">$15.50</span> <small>a day</small></div><a class="btn" href="plan.html?plan=full">Start Full Bowl</a></div>
+   <div class="plan"><h3>Half Bowl</h3><div class="sub">Lyka half only; mix with your current food</div><div class="big"><span id="hFour">$257.60</span> <small>every 4 weeks</small></div><div class="day"><span id="hDay">$9.20</span> <small>a day</small></div><a class="btn alt" href="plan.html?plan=half">Start Half Bowl</a></div>
+  </div>
+  <div class="proof">★ 4.9 out of 5 from 1,133 reviews on ProductReview.com.au (16 September 2026)</div>
+  <div class="email">✉ <a href="#" onclick="alert('Optional. In the real page this would email the estimate above. Nothing is collected in this mock-up.');return false;">Email me my plan</a> (optional, after you see your price)</div>
+  <div class="faq">
+   <details><summary>Can I start with Half Bowl?</summary>Yes. Half Bowl covers half the diet; you supply the other half. Both plans are shown above so you can compare.</details>
+   <details><summary>Do I need to give my email?</summary>No. The price is shown first. Email is optional, after the answer.</details>
+   <details><summary>How is this compared with dry food?</summary><a href="compare.html">See the cost comparison page</a> for per-day figures against dry food for the same dog.</details>
+  </div>
+  <div class="fine" id="basis"></div>
+  <div class="fine">The billed total is shown at least as prominently as the per-day figure (Australian Consumer Law; ACCC price-display guidance). Breed and body condition refine the price in the plan.</div>
+ </div>
+</div>
+
+</div>
+<footer>Concept mock-up built for MARK901 Assessment 2 (University of Wollongong, Trimester 3 2026). Lyka, Full Bowl and Half Bowl are names of Lyka Pet Food; this site is a student proposal and is not operated by or affiliated with Lyka. Example prices: 30 kg adult Labrador, ongoing list prices before offers, captured 17 September 2026.</footer>
+<script src="site.js"></script></body></html>
