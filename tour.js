@@ -48,29 +48,54 @@
   var panel = document.getElementById('panel'), capT = panel.querySelector('.t'), addr = panel.querySelector('.addr'), bar = panel.querySelector('.bar i');
   var start = document.getElementById('start');
   var voice = false, paused = false, stopped = false, timer = null, lastEl = null, steps = [], idx = 0, started = false;
+  var pageKey = 'index', aud = new Audio(); aud.preload = 'auto';
+  function clipId(i){ return 'audio/' + pageKey.replace('.html','').replace('|','-') + '-' + (i + 1) + '.mp3'; }
 
   function layout(){ var short = window.innerHeight < 520; document.body.classList.toggle('short', short); document.body.classList.toggle('tall', !short); }
   layout(); window.addEventListener('resize', layout);
 
-  // first page carries the source tag from the cover (QR or link)
-  var first = new URL('index.html', location.href);
-  ['utm_source','utm_medium','utm_campaign'].forEach(function(k){ if (q.get(k)) first.searchParams.set(k, q.get(k)); });
-  if (!first.searchParams.get('utm_source')) { first.searchParams.set('utm_source','cover'); }
-  if (!first.searchParams.get('utm_campaign')) { first.searchParams.set('utm_campaign','price'); }
-  ifr.src = first.pathname.split('/').pop() + first.search;
+  // Single-tactic mode (?at=t1..t4): starts at that tactic and stops at the end of it. Used by the QR codes beside Figures 4 to 7.
+  var SEG = {
+    t1: {name:'Tactic 1: TikTok reply', start:'tiktok.html?utm_source=tiktok&utm_medium=reply&utm_campaign=price', keys:['tiktok.html']},
+    t2: {name:'Tactic 2: price page', start:'price.html?utm_source=tiktok&utm_medium=bio&utm_campaign=price', keys:['price.html']},
+    t3: {name:'Tactic 3: cost comparison', start:'compare.html?utm_source=search&utm_medium=cpc&utm_campaign=price', keys:['compare.html']},
+    t4: {name:'Tactic 4: vet clinic card', start:'clinic.html', keys:['clinic.html','price.html|clinic']}
+  };
+  var seg = SEG[(q.get('at') || '').toLowerCase()] || null;
+  if (seg) {
+    ifr.src = seg.start;
+    var sh = start.querySelector('h1'); if (sh) sh.textContent = seg.name;
+    var sp = start.querySelector('p'); if (sp) sp.textContent = 'About 40 seconds, narrated. The cursor shows what to look at and each step explains what the plan does and measures. The full three-minute walk-through follows Chloe through all four tactics.';
+    document.querySelector('#panel .k span').textContent = seg.name;
+  } else {
+    // first page carries the source tag from the cover (QR or link)
+    var first = new URL('index.html', location.href);
+    ['utm_source','utm_medium','utm_campaign'].forEach(function(k){ if (q.get(k)) first.searchParams.set(k, q.get(k)); });
+    if (!first.searchParams.get('utm_source')) { first.searchParams.set('utm_source','cover'); }
+    if (!first.searchParams.get('utm_campaign')) { first.searchParams.set('utm_campaign','price'); }
+    ifr.src = first.pathname.split('/').pop() + first.search;
+  }
+  function segEnd(){
+    unhl(); stopAudio();
+    capT.textContent = 'End of ' + seg.name + '.';
+    document.getElementById('bpause').style.display = 'none';
+    var bn = document.getElementById('bnext'); bn.textContent = 'Play the full walk-through';
+    bn.onclick = function(){ location.href = 'tour.html?utm_source=report&utm_medium=segment'; };
+    bar.style.transition = 'none'; bar.style.width = '100%';
+  }
 
-  document.getElementById('svoice').onclick = function(){ voice = !!window.speechSynthesis; begin(); };
+  document.getElementById('svoice').onclick = function(){ voice = true; try { aud.src = clipId(0); aud.load(); } catch(e){} begin(); };
   document.getElementById('squiet').onclick = function(){ voice = false; begin(); };
   function begin(){
     start.style.display = 'none'; panel.style.display = 'block'; cur.style.display = 'block'; started = true;
     document.getElementById('bvoice').textContent = voice ? 'Voice on' : 'Voice off';
-    if (voice) { try { speechSynthesis.cancel(); } catch(e){} }
+    if (voice && window.speechSynthesis) { try { speechSynthesis.cancel(); } catch(e){} }
     if (ifrLoaded) run(0);
   }
-  document.getElementById('bpause').onclick = function(){ paused = !paused; this.textContent = paused ? 'Resume' : 'Pause'; if (paused) { clearTimeout(timer); if (voice) speechSynthesis.pause(); } else { if (voice) speechSynthesis.resume(); run(idx); } };
-  document.getElementById('bnext').onclick = function(){ clearTimeout(timer); if (voice) speechSynthesis.cancel(); paused = false; document.getElementById('bpause').textContent='Pause'; advance(steps[idx]); };
-  document.getElementById('bvoice').onclick = function(){ voice = !voice && !!window.speechSynthesis; this.textContent = voice ? 'Voice on' : 'Voice off'; if (!voice) { try { speechSynthesis.cancel(); } catch(e){} } };
-  document.getElementById('bstop').onclick = function(){ stopped = true; clearTimeout(timer); if (window.speechSynthesis) speechSynthesis.cancel(); panel.remove(); cur.remove(); unhl(); };
+  document.getElementById('bpause').onclick = function(){ paused = !paused; this.textContent = paused ? 'Resume' : 'Pause'; if (paused) { clearTimeout(timer); try { aud.pause(); } catch(e){} if (window.speechSynthesis) speechSynthesis.pause(); } else { if (voice && aud.src && aud.paused && aud.currentTime > 0 && !aud.ended) { if (window.speechSynthesis) speechSynthesis.resume(); aud.play(); } else { if (window.speechSynthesis) speechSynthesis.resume(); run(idx); } } };
+  document.getElementById('bnext').onclick = function(){ clearTimeout(timer); stopAudio(); paused = false; document.getElementById('bpause').textContent='Pause'; advance(steps[idx]); };
+  document.getElementById('bvoice').onclick = function(){ voice = !voice; this.textContent = voice ? 'Voice on' : 'Voice off'; if (!voice) stopAudio(); };
+  document.getElementById('bstop').onclick = function(){ stopped = true; clearTimeout(timer); stopAudio(); panel.remove(); cur.remove(); unhl(); };
   document.getElementById('bhide').onclick = function(){ var m = document.body.classList.toggle('mini'); this.textContent = m ? 'Show text' : 'Hide text'; };
 
   var ifrLoaded = false;
@@ -80,8 +105,9 @@
     var page = u.pathname.split('/').pop() || 'index.html';
     var src = u.searchParams.get('utm_source');
     var key = page; if (page === 'price.html' && (src === 'compare' || src === 'clinic')) key = page + '|' + src;
-    steps = S[key] || []; idx = 0;
+    steps = S[key] || []; idx = 0; pageKey = key;
     addr.textContent = 'Address: ' + page + u.search;
+    if (seg && started && seg.keys.indexOf(key) < 0) { setTimeout(function(){ var r = doc().getElementById('route'); if (r && r.style.display !== 'none') { scrollToEl(r); hl(r); place(r); } segEnd(); if (r) hl(r); }, 500); return; }
     if (started && !stopped) setTimeout(function(){ run(0); }, 500);
   });
 
@@ -102,14 +128,30 @@
   }
   function hl(el){ el.style.outline = '3px solid #F2876A'; el.style.outlineOffset = '4px'; el.style.borderRadius = '8px'; lastEl = el; }
   function unhl(){ if (lastEl) { lastEl.style.outline = ''; lastEl.style.outlineOffset = ''; } lastEl = null; }
-  function speak(text, done){
+  function stopAudio(){ try { aud.onended = null; aud.onerror = null; aud.pause(); aud.currentTime = 0; } catch(e){} if (window.speechSynthesis) { try { speechSynthesis.cancel(); } catch(e){} } }
+  function speakBrowser(text, done){
+    if (!window.speechSynthesis) { done(); return function(){}; }
     var u = new SpeechSynthesisUtterance(text); u.rate = 1.0; u.lang = 'en-AU';
-    var vs = speechSynthesis.getVoices(); var v = vs.filter(function(x){ return /en[-_]AU/i.test(x.lang); })[0] || vs.filter(function(x){ return /en[-_]GB/i.test(x.lang); })[0] || vs.filter(function(x){ return /^en/i.test(x.lang); })[0];
+    var vs = speechSynthesis.getVoices(); var male = /william|lee|gordon|russell|james|daniel|oliver|arthur|male/i;
+    var v = vs.filter(function(x){ return /en[-_]AU/i.test(x.lang) && male.test(x.name); })[0] || vs.filter(function(x){ return /en[-_](AU|GB)/i.test(x.lang) && male.test(x.name); })[0] || vs.filter(function(x){ return /^en/i.test(x.lang) && male.test(x.name); })[0] || vs.filter(function(x){ return /en[-_]AU/i.test(x.lang); })[0];
     if (v) u.voice = v;
     var fired = false; function once(){ if (!fired) { fired = true; done(); } }
     u.onend = once; u.onerror = once;
     speechSynthesis.speak(u);
     return function(){ fired = true; };
+  }
+  // Recorded narration (Azure neural voice, en-AU) with the browser voice as fallback if a clip is missing or blocked
+  function speak(i, text, done){
+    var fired = false; function once(){ if (!fired) { fired = true; done(); } }
+    var fb = null;
+    try {
+      aud.onended = once;
+      aud.onerror = function(){ if (!fired) { fb = speakBrowser(text, once); } };
+      aud.src = clipId(i); aud.currentTime = 0;
+      var pr = aud.play();
+      if (pr && pr.catch) pr.catch(function(){ if (!fired) { fb = speakBrowser(text, once); } });
+    } catch(e) { fb = speakBrowser(text, once); }
+    return function(){ fired = true; if (fb) fb(); };
   }
 
   function run(i){
@@ -133,15 +175,16 @@
     }, 700);
     var cancelSpeak = null;
     if (voice) {
-      cancelSpeak = speak(st.say || st.cap, function(){ clearTimeout(timer); timer = setTimeout(function(){ advance(st); }, 600); });
+      cancelSpeak = speak(i, st.say || st.cap, function(){ clearTimeout(timer); timer = setTimeout(function(){ advance(st); }, 600); });
       // safety net if the speech engine never reports completion
-      timer = setTimeout(function(){ if (cancelSpeak) cancelSpeak(); advance(st); }, dur * 2.5 + 700);
+      timer = setTimeout(function(){ if (cancelSpeak) cancelSpeak(); stopAudio(); advance(st); }, dur * 3 + 2000);
     } else {
       timer = setTimeout(function(){ advance(st); }, dur + 700);
     }
   }
   function advance(st){
     if (stopped || paused || !st) return;
+    if (seg && !st.click && seg.keys.indexOf(pageKey) === seg.keys.length - 1 && idx >= steps.length - 1) { segEnd(); return; }
     if (st.click) {
       var el = doc().querySelector(st.sel);
       cur.classList.add('click');
