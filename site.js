@@ -20,7 +20,7 @@
   }
   var route = document.getElementById('route');
   if (route) {
-    var label = {tiktok:'TikTok reply', clinic:'vet clinic card', search:'Google search ad', compare:'cost comparison page', instagram:'Instagram reply', cover:'report cover QR'}[src] || null;
+    var label = {tiktok:'TikTok reply', clinic:'vet clinic card', search:'Google search result', compare:'cost comparison page', instagram:'Instagram reply', cover:'report cover QR'}[src] || null;
     if (label) {
       route.style.display = 'block';
       route.innerHTML = '<b>Route recorded:</b> you arrived from the ' + label + (clinic ? ' (clinic code ' + clinic + ')' : '') + '. Address bar shows <span class="url">' + location.search.replace(/[?&]tour=\d+/,'') + '</span>. This is how each tactic is attributed in the plan.';

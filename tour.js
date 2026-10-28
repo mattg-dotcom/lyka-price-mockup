@@ -11,7 +11,7 @@
       {sel:'.reply', cap:'Tactic 1. A real price question in the thread: how much is it for a 30 kilo dog?'},
       {sel:'.cap', cap:'A named team member answers on camera with a labelled example price, in public, so everyone reading the thread sees it.'},
       {sel:'.pin', cap:'TikTok comments cannot carry live links, so the address sits in a pinned comment and the profile link. Every reply is counted toward the 90 per cent reply-coverage measure.'},
-      {sel:'.bio a', cap:'Chloe taps the bio link. The tag u t m source equals tiktok travels with her, which is how the plan attributes the visit.', say:'Chloe taps the bio link. A TikTok source tag travels with her, which is how the plan attributes the visit.', click:true}
+      {sel:'.bio a', cap:'Chloe taps the bio link. The tag utm_source=tiktok travels with her, which is how the plan attributes the visit.', say:'Chloe taps the bio link. A TikTok source tag travels with her, which is how the plan attributes the visit.', click:true}
     ],
     'price.html': [
       {sel:'#route', cap:'Tactic 2. The page records the route she arrived by. Nothing about her is collected.'},
@@ -29,8 +29,8 @@
       {sel:'.plan.best a.btn', cap:'From here the outcome the plan measures is an order placed.', click:true}
     ],
     'compare.html': [
-      {sel:'table.cmp', cap:'Tactic 3. A vet-reviewed comparison with dated prices and a clear note on what Half Bowl does and does not cover. Found through search, AI assistants and one capped search ad.'},
-      {sel:'.card', cap:'How she finds it: the search ad mirrors her own question and lands here, not on a sales page.'},
+      {sel:'table.cmp', cap:'Tactic 3. A vet-reviewed comparison with dated prices and a clear note on what Half Bowl does and does not cover. Found through search, AI assistants and links from TikTok replies.'},
+      {sel:'.card', cap:'How she finds it: a search for her own question lands here, on an honest comparison rather than a sales page.'},
       {sel:'a.btn[href^="price"]', cap:'Every route ends at the same destination. Back to the price page, now tagged from the comparison.', click:true}
     ],
     'clinic.html': [
@@ -58,7 +58,7 @@
   var SEG = {
     t1: {name:'Tactic 1: TikTok reply', start:'tiktok.html?utm_source=tiktok&utm_medium=reply&utm_campaign=price', keys:['tiktok.html']},
     t2: {name:'Tactic 2: price page', start:'price.html?utm_source=tiktok&utm_medium=bio&utm_campaign=price', keys:['price.html']},
-    t3: {name:'Tactic 3: cost comparison', start:'compare.html?utm_source=search&utm_medium=cpc&utm_campaign=price', keys:['compare.html']},
+    t3: {name:'Tactic 3: cost comparison', start:'compare.html?utm_source=search&utm_medium=organic&utm_campaign=price', keys:['compare.html']},
     t4: {name:'Tactic 4: vet clinic card', start:'clinic.html', keys:['clinic.html','price.html|clinic']}
   };
   var seg = SEG[(q.get('at') || '').toLowerCase()] || null;
