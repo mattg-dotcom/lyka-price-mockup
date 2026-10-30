@@ -9,7 +9,7 @@
       var h = a.getAttribute('href');
       if (/^(https?:|#|mailto:)/.test(h)) return;
       var u = new URL(h, location.href);
-      if (!u.searchParams.get('utm_source')) {
+      if (!u.searchParams.get('utm_source') || u.searchParams.get('via')) {
         u.searchParams.set('utm_source', src);
         if (q.get('utm_medium')) u.searchParams.set('utm_medium', q.get('utm_medium'));
         if (q.get('utm_campaign')) u.searchParams.set('utm_campaign', q.get('utm_campaign'));
@@ -18,12 +18,13 @@
       a.setAttribute('href', u.pathname.split('/').pop() + u.search + u.hash);
     });
   }
+  var via = q.get('via');
   var route = document.getElementById('route');
   if (route) {
     var label = {tiktok:'TikTok reply', clinic:'vet clinic card', search:'Google search result', compare:'cost comparison page', instagram:'Instagram reply', cover:'report cover QR'}[src] || null;
     if (label) {
       route.style.display = 'block';
-      route.innerHTML = '<b>Route recorded:</b> you arrived from the ' + label + (clinic ? ' (clinic code ' + clinic + ')' : '') + '. Address bar shows <span class="url">' + location.search.replace(/[?&]tour=\d+/,'') + '</span>. This is how each tactic is attributed in the plan.';
+      route.innerHTML = '<b>Route recorded:</b> you arrived from the ' + label + (clinic ? ' (clinic code ' + clinic + ')' : '') + (via === 'compare' ? ', via the cost comparison page (entry source retained; the handover is recorded separately)' : '') + '. Address bar shows <span class="url">' + location.search.replace(/[?&]tour=\d+/,'') + '</span>. This is how each tactic is attributed in the plan.';
     }
   }
   // price calculator

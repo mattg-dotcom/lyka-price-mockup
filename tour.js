@@ -21,7 +21,7 @@
       {sel:'.faq details:nth-of-type(3) a', cap:'Still weighing it up? Tactic 3 compares fresh and dry food for the same dog.', open:'.faq details:nth-of-type(3)', click:true}
     ],
     'price.html|compare': [
-      {sel:'#route', cap:'Back on the price page, now tagged from the comparison. The two digital routes are done. One route is left: the vet clinic.'},
+      {sel:'#route', cap:'Back on the price page. The entry source is kept and the comparison handover is recorded separately. The two digital routes are done. One route is left: the vet clinic.'},
       {sel:'.path a[href^="clinic"]', cap:'Chloe\'s vet raises diet. Follow the offline route.', click:true}
     ],
     'price.html|clinic': [
@@ -31,7 +31,7 @@
     'compare.html': [
       {sel:'table.cmp', cap:'Tactic 3. A vet-reviewed comparison with dated prices and a clear note on what Half Bowl does and does not cover. Found through search, AI assistants and links from TikTok replies.'},
       {sel:'.card', cap:'How she finds it: a search for her own question lands here, on an honest comparison rather than a sales page.'},
-      {sel:'a.btn[href^="price"]', cap:'Every route ends at the same destination. Back to the price page, now tagged from the comparison.', click:true}
+      {sel:'a.btn[href^="price"]', cap:'Every route ends at the same destination. The comparison links back to the price page and keeps the original entry source.', click:true}
     ],
     'clinic.html': [
       {sel:'.two > div:first-child', cap:'Tactic 4, the offline route. Where the vet judges fresh food suitable, this card is handed over in the consult room.'},
@@ -104,7 +104,7 @@
     var u = new URL(ifr.contentWindow.location.href);
     var page = u.pathname.split('/').pop() || 'index.html';
     var src = u.searchParams.get('utm_source');
-    var key = page; if (page === 'price.html' && (src === 'compare' || src === 'clinic')) key = page + '|' + src;
+    var key = page; if (page === 'price.html' && u.searchParams.get('via') === 'compare') key = page + '|compare'; else if (page === 'price.html' && src === 'clinic') key = page + '|clinic';
     steps = S[key] || []; idx = 0; pageKey = key;
     addr.textContent = 'Address: ' + page + u.search;
     if (seg && started && seg.keys.indexOf(key) < 0) { setTimeout(function(){ var r = doc().getElementById('route'); if (r && r.style.display !== 'none') { scrollToEl(r); hl(r); place(r); } segEnd(); if (r) hl(r); }, 500); return; }
